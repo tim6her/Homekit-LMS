@@ -1,3 +1,4 @@
 ENV/
 *.state
 *.DS_Store
+*.pyc

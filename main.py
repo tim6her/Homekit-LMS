@@ -11,8 +11,28 @@ import signal
 from pyhap.accessory import Bridge
 from pyhap.accessory_driver import AccessoryDriver
 import pyhap.loader as loader
+import lmsquery
 
-# The below package can be found in the HAP-python github repo under accessories/
+def connect_to_player_at_server(playername, hostname):
+    """Connects to a Squeezbox player connected to a server by
+    their name.
+
+    Args:
+        playername (string): name of player
+        hostname (string): hostname of Squeezbox server
+
+    Returns:
+        pylms.player.Player
+    """
+    server = lmsquery.LMSQuery(hostname)
+
+    players = [ply for ply in server.get_players() if
+               ply['name'] == playername]
+    if len(players) < 1:
+        raise RuntimeError(('No player named %s connected to '
+                            'server named %s') % (playername, hostname))
+    return server, players[0]['playerid']
+
 from accessories.LMS import LMS
 
 logging.basicConfig(level=logging.INFO)
@@ -31,7 +51,8 @@ def get_bridge(driver):
 
 def get_accessory(driver):
     """Call this method to get a standalone Accessory."""
-    return LMS(driver, 'My Logitech Media Server')
+    server, player = connect_to_player_at_server('salonmaster', 'salonmaster')
+    return LMS(server, player, driver, 'Salonmaster')
 
 
 # Start the accessory on port 51826
