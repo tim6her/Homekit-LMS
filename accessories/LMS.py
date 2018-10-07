@@ -19,6 +19,10 @@ class LMS(Accessory):
                                               setter_callback=self.set_mode)
         self.server = server
         self.player = player
+        self.set_info_service(firmware_revision=None,
+                              manufacturer='Myself',
+                              model='Raspberry Pi 3, running Slimlibrary',
+                              serial_number=None)
 
     @Accessory.run_at_interval(3)
     def run(self):
