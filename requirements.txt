@@ -1,0 +1,2 @@
+lmsquery
+HAP-python[QRCode]
