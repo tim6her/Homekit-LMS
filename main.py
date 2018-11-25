@@ -7,6 +7,7 @@ This is:
 """
 import logging
 import signal
+import time
 
 from pyhap.accessory import Bridge
 from pyhap.accessory_driver import AccessoryDriver
@@ -54,16 +55,25 @@ def get_accessory(driver):
     server, player = connect_to_player_at_server('salonmaster', 'salonmaster')
     return LMS(server, player, driver, 'Salonmaster')
 
+def homekit():
+    # Start the accessory on port 51826
+    driver = AccessoryDriver(port=51826)
 
-# Start the accessory on port 51826
-driver = AccessoryDriver(port=51826)
+    # Change `get_accessory` to `get_bridge` if you want to run a Bridge.
+    driver.add_accessory(accessory=get_accessory(driver))
 
-# Change `get_accessory` to `get_bridge` if you want to run a Bridge.
-driver.add_accessory(accessory=get_accessory(driver))
+    # We want SIGTERM (kill) to be handled by the driver itself,
+    # so that it can gracefully stop the accessory, server and advertising.
+    signal.signal(signal.SIGTERM, driver.signal_handler)
 
-# We want SIGTERM (kill) to be handled by the driver itself,
-# so that it can gracefully stop the accessory, server and advertising.
-signal.signal(signal.SIGTERM, driver.signal_handler)
+    # Start it!
+    driver.start()
 
-# Start it!
-driver.start()
+   
+while True:
+    try:
+        homekit()
+    except:
+        time.sleep(5)
+    
+
